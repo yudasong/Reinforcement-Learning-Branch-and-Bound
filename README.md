@@ -6,3 +6,4 @@
 6. Representation of the value, can it be all nagative?
 7. Representation of the state.
 8. When it reaches ternimal, how to calculate its reward? Possible approach: calculate the mean give the lower and upper value.
+9. How to choose the middle value to cut? Why 0.4 ?
