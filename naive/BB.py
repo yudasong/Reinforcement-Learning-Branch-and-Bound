@@ -1,3 +1,7 @@
+import numpy as np
+import pyibex as pi
+
+
 class BB():
     """
     This class specifies the base Game class. To define your own game, subclass
@@ -12,7 +16,10 @@ class BB():
         self.function = function
         self.input_box = input_box
         self.output_range = output_range
-        self.contractor = CtcFwdBwd(self.function, self.output_range)
+        self.contractor = pi.CtcFwdBwd(self.function, self.output_range)
+
+        # size of representation for each variable
+        self.embedding_size = 3
 
     def getRoot(self):
         """
@@ -20,21 +27,35 @@ class BB():
             : a representation of the board (ideally this is the form
                         that will be the input to your neural network)
         """
-        pass
+
+        shape = self.getBoardSize()
+        
+        embedding = np.zeros(shape)
+
+        for i in range(shape[0]):
+        	lower = self.input_box[i][0]
+        	upper = self.input_box[i][1]
+        	middle = float((lower + upper) / 2)
+
+        	embedding[i,0] = lower
+        	embedding[i,1] = middle
+        	embedding[i,2] = upper
+
+        return embedding
 
     def getBoardSize(self):
         """
         Returns:
             (x,y): a tuple of board dimensions
         """
-        pass
+        return  len(self.input_box),self.embedding_size
 
     def getActionSize(self):
         """
         Returns:
             actionSize: number of all possible actions
         """
-        return 2^^len(self.input_box)
+        return 2**len(self.input_box)
 
     def getNextState(self, state, action):
         """
@@ -45,18 +66,20 @@ class BB():
         Returns:
             nextBoard: board after applying action
         """
-        var_index = action / 2
+        var_index = int(action / 2)
         direction = action % 2
+
+        print(self.input_box)
 
         new_boxes = self.input_box.bisect(var_index, 0.5)
 
         self.input_box = new_boxes[direction]
 
-        contractor.contract(self.input_box)
+        self.contractor.contract(self.input_box)
 
         #TODO: return the STATE
 
-        pass
+        return self.getRoot()
 
 
 
