@@ -1,9 +1,9 @@
 from Coach import Coach
-from othello.OthelloGame import OthelloGame as Game
-from BBNNet import NNetWrapper as nn
+from naive.BB import BB 
+from naive.pytorch.NNet import NNetWrapper as nn
 from utils import *
 from pyibex import *
-from BB import BB
+#from BB import BB
 
 args = dotdict({
     'numIters': 1000,
@@ -29,7 +29,7 @@ if __name__=="__main__":
     #Define the output range (i.e. desired value of the function)
     output_range = Interval(1,1)
 
-    g = BB(f, input_box, output_range,10)
+    g = BB(f, input_box, output_range)
     nnet = nn(g)
 
     if args.load_model:
