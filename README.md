@@ -1,3 +1,9 @@
+7/24/2018
+1. multi dimension issue within sampling data rerpesentation
+
+
+
+7/13/2018
 1. We need a systemetic guide/ introduction to branch and bound.
 2. We need a systemetic guide/ introduction to branch and bound.
 3. How to choose the middle value to cut? Why 0.4 ?
