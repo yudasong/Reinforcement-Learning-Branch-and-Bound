@@ -16,7 +16,7 @@ class BB():
         self.output_range = output_range
         self.contractor = CtcFwdBwd(self.function, self.output_range)
         self.stateSize = stateSize
-    #
+
     def getRoot(self):
 
         """
@@ -25,31 +25,28 @@ class BB():
                         that will be the input to your neural network)
         """
 
-        root = np.zeros((self.stateSize, self.stateSize))
-        horizentalDiff = self.input_box[0].diam()/(self.stateSize-1)
-        verticalDiff = self.input_box[1].diam()/(self.stateSize-1)
-        horizentalStart = self.input_box[0][0]
-        verticalStart = self.input_box[1][0]
-        horizentalEnd = self.input_box[0][1]
-        verticalEnd = self.input_box[1][1]
+        return getBoardFromInput_box(self.input_box)
+
+    def getBoardFromInput_box(self,currentInput_box):
+        res = np.zeros((self.stateSize, self.stateSize))
+        horizentalDiff = currentInput_box[0].diam()/(self.stateSize-1)
+        verticalDiff = currentInput_box[1].diam()/(self.stateSize-1)
+        horizentalStart = currentInput_box[0][0]
+        verticalStart = currentInput_box[1][0]
+        horizentalEnd = currentInput_box[0][1]
+        verticalEnd = currentInput_box[1][1]
         for i in range(0, self.stateSize):
             for j in range(0,self.stateSize):
-                if i == self.stateSize - 1 and j == self.stateSize - 1:
-                    currentCoordinate = IntervalVector([[horizentalEnd ,horizentalEnd],  [verticalEnd,verticalEnd]] )
-                elif i == self.stateSize -1:
-                    currentCoordinate = IntervalVector([[horizentalEnd ,horizentalEnd ],  [verticalStart+j * verticalDiff ,verticalStart+j * verticalDiff ]] )
-                elif j == self.stateSize -1:
-                    currentCoordinate = IntervalVector([[horizentalStart+i * horizentalDiff ,horizentalStart+i * horizentalDiff  ],  [verticalEnd,verticalEnd]])
-                else:
-                    currentCoordinate = IntervalVector([[horizentalStart+i * horizentalDiff ,horizentalStart+i * horizentalDiff  ],  [verticalStart+j * verticalDiff ,verticalStart+j * verticalDiff ]] )
-                root[i][j] = self.function.eval(currentCoordinate)[0]
-        return root
-    """def getBoardSize(self):
+                currentCoordinate = IntervalVector([[horizentalStart+i * horizentalDiff ,horizentalStart+i * horizentalDiff  ],  [verticalStart+j * verticalDiff ,verticalStart+j * verticalDiff ]] )
+                res[i][j] = self.function.eval(currentCoordinate)[0]
+        return res
 
-        Returns:
-            (x,y): a tuple of board dimensions
+    def getBoardSize(self):
 
-        pass"""
+        """Returns:
+            (x,y): a tuple of board dimensions"""
+
+        return (self.stateSize, self.stateSize)
 
     def getActionSize(self):
         """
@@ -58,30 +55,29 @@ class BB():
         """
         return 2**len(self.input_box)
 
-    def getNextState(self, state, action):
+    def getNextState(self, currentInput_box, action):
         """
         Input:
             state: current state
             action: action taken by current player
 
         Returns:
-            nextBoard: board after applying action
+            currentInput_box: the input_box after contract
         """
-        var_index = action / 2
+        var_index = int(action / 2)
         direction = action % 2
+        new_boxes = currentInput_box.bisect(var_index, 0.5)
 
-        new_boxes = self.input_box.bisect(var_index, 0.5)
+        currentInput_box = new_boxes[direction]
 
-        self.input_box = new_boxes[direction]
+        self.contractor.contract(currentInput_box)
 
-        contractor.contract(self.input_box)
-
-        return self.getRoot(self.stateSize)
-
+        return currentInput_box
 
 
 
-    def getValidMoves(self, threshold):
+
+    def getValidMoves(self, currentInput_box, threshold):
         """
         Input:
             board: current board
@@ -95,34 +91,35 @@ class BB():
 
         mask = np.zeros(self.getActionSize())
 
-        for i in range(len(self.input_box)):
-            if self.input_box[i].diam() > threshold:
+        for i in range(len(currentInput_box)):
+            if currentInput_box[i].diam() > threshold:
                 mask[2*i] = 1
                 mask[2*i+1] = 1
 
         return mask
 
 
-    def getGameEnded(self, threshold):
+    def getGameEnded(self,currentInput_box, threshold):
         """
         Input:
             board: current board
             player: current player (1 or -1)
 
         Returns:
-            r: 0 if game has not ended. 1 if player won, -1 if player lost,
-               small non-zero value for draw.
+            r: 0 if game has not ended. positive if value close to 0 otherwise negative
 
         """
 
-        if 1 not in self.getValidMoves(threshold):
-            return True
+        if 1 not in self.getValidMoves(currentInput_box, threshold):
+            currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
+
+            return 1- np.abs(self.function.eval(IntervalVector(currentValue))[0])
         else:
             return False
 
 
 
-    def stringRepresentation(self, board):
+    def stringRepresentation(self,currentInput_box):
         """
         Input:
             board: current board
@@ -131,4 +128,5 @@ class BB():
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        pass
+        string = ''.join(str(x) for x in currentInput_box)
+        return string
