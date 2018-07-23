@@ -1,3 +1,5 @@
+import numpy as np
+from pyibex import *
 class BB():
     """
     This class specifies the base Game class. To define your own game, subclass
@@ -8,33 +10,53 @@ class BB():
 
     See othello/OthelloGame.py for an example implementation.
     """
-    def __init__(self, function, input_box, output_range):
+    def __init__(self, function, input_box, output_range, stateSize):
         self.function = function
         self.input_box = input_box
         self.output_range = output_range
         self.contractor = CtcFwdBwd(self.function, self.output_range)
-
+        self.stateSize = stateSize
+    #
     def getRoot(self):
+
         """
         Returns:
             : a representation of the board (ideally this is the form
                         that will be the input to your neural network)
         """
-        pass
 
-    def getBoardSize(self):
-        """
+        root = np.zeros((self.stateSize, self.stateSize))
+        horizentalDiff = self.input_box[0].diam()/(self.stateSize-1)
+        verticalDiff = self.input_box[1].diam()/(self.stateSize-1)
+        horizentalStart = self.input_box[0][0]
+        verticalStart = self.input_box[1][0]
+        horizentalEnd = self.input_box[0][1]
+        verticalEnd = self.input_box[1][1]
+        for i in range(0, self.stateSize):
+            for j in range(0,self.stateSize):
+                if i == self.stateSize - 1 and j == self.stateSize - 1:
+                    currentCoordinate = IntervalVector([[horizentalEnd ,horizentalEnd],  [verticalEnd,verticalEnd]] )
+                elif i == self.stateSize -1:
+                    currentCoordinate = IntervalVector([[horizentalEnd ,horizentalEnd ],  [verticalStart+j * verticalDiff ,verticalStart+j * verticalDiff ]] )
+                elif j == self.stateSize -1:
+                    currentCoordinate = IntervalVector([[horizentalStart+i * horizentalDiff ,horizentalStart+i * horizentalDiff  ],  [verticalEnd,verticalEnd]])
+                else:
+                    currentCoordinate = IntervalVector([[horizentalStart+i * horizentalDiff ,horizentalStart+i * horizentalDiff  ],  [verticalStart+j * verticalDiff ,verticalStart+j * verticalDiff ]] )
+                root[i][j] = self.function.eval(currentCoordinate)[0]
+        return root
+    """def getBoardSize(self):
+
         Returns:
             (x,y): a tuple of board dimensions
-        """
-        pass
+
+        pass"""
 
     def getActionSize(self):
         """
         Returns:
             actionSize: number of all possible actions
         """
-        return 2^^len(self.input_box)
+        return 2**len(self.input_box)
 
     def getNextState(self, state, action):
         """
@@ -54,9 +76,8 @@ class BB():
 
         contractor.contract(self.input_box)
 
-        #TODO: return the STATE
+        return self.getRoot(self.stateSize)
 
-        pass
 
 
 
@@ -91,14 +112,14 @@ class BB():
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
                small non-zero value for draw.
-               
+
         """
 
         if 1 not in self.getValidMoves(threshold):
             return True
         else:
             return False
-        
+
 
 
     def stringRepresentation(self, board):
