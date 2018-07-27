@@ -31,12 +31,12 @@ class BB():
         return getBoardFromInput_box(self.input_box)
 
 
-    
+
     def getBoardFromInput_box(self, currentInput_box):
 
 
         shape = self.getBoardSize()
-        
+
         embedding = np.zeros(shape)
 
         for i in range(shape[0]):
@@ -120,16 +120,16 @@ class BB():
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
                small non-zero value for draw.
-               
+
         """
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
             currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
 
-            return 1- np.abs(self.function.eval(IntervalVector(currentValue))[0])
+            return 1- np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
         else:
             return False
-        
+
 
 
     def stringRepresentation(self, currentInput_box):
