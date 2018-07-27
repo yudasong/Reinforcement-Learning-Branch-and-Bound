@@ -28,18 +28,25 @@ class BB():
                         that will be the input to your neural network)
         """
 
+        return getBoardFromInput_box(self.input_box)
+
+
+    
+    def getBoardFromInput_box(self, currentInput_box):
+
+
         shape = self.getBoardSize()
         
         embedding = np.zeros(shape)
 
         for i in range(shape[0]):
-        	lower = self.input_box[i][0]
-        	upper = self.input_box[i][1]
-        	middle = float((lower + upper) / 2)
+            lower = currentInput_box[i][0]
+            upper = currentInput_box[i][1]
+            middle = float((lower + upper) / 2)
 
-        	embedding[i,0] = lower
-        	embedding[i,1] = middle
-        	embedding[i,2] = upper
+            embedding[i,0] = lower
+            embedding[i,1] = middle
+            embedding[i,2] = upper
 
         return embedding
 
@@ -57,7 +64,7 @@ class BB():
         """
         return 2**len(self.input_box)
 
-    def getNextState(self, state, action):
+    def getNextState(self, currentInput_box, action):
         """
         Input:
             state: current state
@@ -69,21 +76,20 @@ class BB():
         var_index = int(action / 2)
         direction = action % 2
 
-        print(self.input_box)
 
-        new_boxes = self.input_box.bisect(var_index, 0.5)
+        new_boxes = currentInput_box.bisect(var_index, 0.5)
 
-        self.input_box = new_boxes[direction]
+        currentInput_box = new_boxes[direction]
 
-        self.contractor.contract(self.input_box)
+        self.contractor.contract(currentInput_box)
 
         #TODO: return the STATE
 
-        return self.getRoot()
+        return currentInput_box
 
 
 
-    def getValidMoves(self, threshold):
+    def getValidMoves(self,currentInput_box, threshold):
         """
         Input:
             board: current board
@@ -97,15 +103,15 @@ class BB():
 
         mask = np.zeros(self.getActionSize())
 
-        for i in range(len(self.input_box)):
-            if self.input_box[i].diam() > threshold:
+        for i in range(len(currentInput_box)):
+            if currentInput_box[i].diam() > threshold:
                 mask[2*i] = 1
                 mask[2*i+1] = 1
 
         return mask
 
 
-    def getGameEnded(self, threshold):
+    def getGameEnded(self,currentInput_box, threshold):
         """
         Input:
             board: current board
@@ -117,14 +123,16 @@ class BB():
                
         """
 
-        if 1 not in self.getValidMoves(threshold):
-            return True
+        if 1 not in self.getValidMoves(currentInput_box, threshold):
+            currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
+
+            return 1- np.abs(self.function.eval(IntervalVector(currentValue))[0])
         else:
             return False
         
 
 
-    def stringRepresentation(self, board):
+    def stringRepresentation(self, currentInput_box):
         """
         Input:
             board: current board
@@ -133,4 +141,5 @@ class BB():
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        pass
+        string = ''.join(str(x) for x in currentInput_box)
+        return string

@@ -21,27 +21,31 @@ class NaiveNNet(nn.Module):
         
 
 
-        self.fc1 = nn.Linear(self.board_x * self.board_y, 32)
-        self.fc_bn1 = nn.BatchNorm1d(32)
+        self.fc1 = nn.Linear(self.board_y, 32)
+        
 
         self.fc2 = nn.Linear(32, 128)
-        self.fc_bn2 = nn.BatchNorm1d(128)
 
         self.fc3 = nn.Linear(128, self.action_size)
 
-        self.fc4 = nn.Linear(128, 32)
+        self.fc4 = nn.Linear(128, 16)
 
-        self.fc4 = nn.Linear(32, 1)
+        self.fc5 = nn.Linear(32, 1)
 
     def forward(self, s):
-        #                                                           s: batch_size x board_x x board_y
-        s = s.view(-1, self.board_x, self.board_y)                # batch_size x 1 x board_x x board_y
+        #                                                           
+        s = s.view(-1, self.board_x, self.board_y)                
         
-        s = F.relu(self.fc_bn1(self.fc1(s)))
-        s = F.relu(self.fc_bn2(self.fc2(s)))
+        s = F.relu(self.fc1(s))
 
-        pi = self.fc3(s)                                                                         # batch_size x action_size
-        v = self.fc4(s)                                                                          # batch_size x 32
-        v = self.fc5(v)                                                                          # batch_size x 1
+        s = F.relu(self.fc2(s))
 
-        return F.log_softmax(pi, dim=1), F.tanh(v)
+        pi = self.fc3(s)   
+                                                                      
+        v = self.fc4(s) 
+
+        v = v.view(-1, 32)
+
+        v = self.fc5(v)
+
+        return F.log_softmax(pi, dim=1), F.tanh(v[0][0])
