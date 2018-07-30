@@ -122,6 +122,9 @@ class BB():
                small non-zero value for draw.
 
         """
+        
+        
+        # TODO: situation for empty box
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
             currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
