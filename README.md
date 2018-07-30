@@ -17,4 +17,4 @@
 7. Representation of the value, can it be all nagative?
 8. Representation of the state.
 9. When it reaches ternimal, how to calculate its reward? Possible approach: calculate the mean give the lower and upper value.
-10. 教授您最近在忙什么？
+
