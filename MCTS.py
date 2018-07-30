@@ -115,8 +115,10 @@ class MCTS():
 
         a = best_act
         currentInput_box= self.game.getNextState(currentInput_box, a)
-
-        v = self.search(currentInput_box)
+        if currentInput_box.is_empty() :
+            v = -10
+        else:
+            v = self.search(currentInput_box)
 
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
