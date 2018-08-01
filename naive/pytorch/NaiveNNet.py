@@ -33,12 +33,16 @@ class NaiveNNet(nn.Module):
         self.fc5 = nn.Linear(16, 1)
 
     def forward(self, s):
-        
+
         s = s.view(-1, self.board_x, self.board_y)
 
-        s = F.relu(self.fc1(s))
 
-        s = F.relu(self.fc2(s))
+
+        s = F.sigmoid(self.fc1(s))
+
+        s = F.sigmoid(self.fc2(s))
+
+        #print(s)
 
         s = self.fc3(s)
 
@@ -51,6 +55,5 @@ class NaiveNNet(nn.Module):
         v = v.view(-1, self.board_x)
 
         v = v.mean(1)
-
 
         return F.log_softmax(pi, dim=1), F.tanh(v)

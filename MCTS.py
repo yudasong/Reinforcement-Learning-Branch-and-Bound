@@ -43,7 +43,6 @@ class MCTS():
 
         counts = [x**(1./temp) for x in counts]
         probs = [x/float(sum(counts)) for x in counts]
-        i = 0
         return probs,reward
 
 
@@ -115,10 +114,8 @@ class MCTS():
 
         a = best_act
         currentInput_box= self.game.getNextState(currentInput_box, a)
-        if currentInput_box.is_empty() :
-            v = -10
-        else:
-            v = self.search(currentInput_box)
+
+        v = self.search(currentInput_box)
 
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)

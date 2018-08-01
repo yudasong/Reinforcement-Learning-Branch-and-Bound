@@ -73,7 +73,13 @@ class NNetWrapper(NeuralNet):
                 data_time.update(time.time() - end)
 
                 # compute output
+
+                #print(boards.size())
+
                 out_pi, out_v = self.nnet(boards)
+
+
+
                 l_pi = self.loss_pi(target_pis, out_pi)
                 l_v = self.loss_v(target_vs, out_v)
                 total_loss = l_pi + l_v

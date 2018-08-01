@@ -50,6 +50,7 @@ class Coach():
             episodeStep += 1
             temp = int(episodeStep < self.args.tempThreshold)
             pi, reward = self.mcts.getActionProb(currentInput_box, temp=temp)
+
             trainExamples.append([board, pi])
             action = np.random.choice(len(pi), p=pi)
             currentInput_box = self.game.getNextState(currentInput_box, action)
