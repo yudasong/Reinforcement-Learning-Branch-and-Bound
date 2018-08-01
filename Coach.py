@@ -6,6 +6,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
+import matplotlib.pyplot as plt
 
 THRESHOLD = 0.001
 class Coach():
@@ -21,6 +22,8 @@ class Coach():
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []    # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False # can be overriden in loadTrainExamples()
+
+        self.show = False
 
     def executeEpisode(self):
         """
@@ -76,9 +79,15 @@ class Coach():
                 bar = Bar('Self Play', max=self.args.numEps)
                 end = time.time()
 
+                reward_list = []
+                count_list = []
+
                 for eps in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
                     iterationTrainExamples += self.executeEpisode()
+
+                    reward_list.append(iterationTrainExamples[-1][2])
+                    count_list.append(eps)
 
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
@@ -87,6 +96,13 @@ class Coach():
                                                                                                                total=bar.elapsed_td, eta=bar.eta_td)
                     bar.next()
                 bar.finish()
+
+                plt.scatter(count_list, reward_list, label = 'training')
+
+                if self.show:
+                    plt.show()
+
+
 
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
@@ -104,13 +120,16 @@ class Coach():
                 trainExamples.extend(e)
             shuffle(trainExamples)
 
-            """# training new network, keeping a copy of the old one
+            # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
             pmcts = MCTS(self.game, self.pnet, self.args)
 
             self.nnet.train(trainExamples)
+            self.show = True
             nmcts = MCTS(self.game, self.nnet, self.args)
+
+            """
 
             print('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
