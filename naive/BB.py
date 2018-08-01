@@ -76,9 +76,10 @@ class BB():
         var_index = int(action / 2)
         direction = action % 2
 
-
+        # split the interval of the selected variable ([(),()],[(),()])
         new_boxes = currentInput_box.bisect(var_index, 0.5)
 
+        # choose go to half of the interval
         currentInput_box = new_boxes[direction]
 
         self.contractor.contract(currentInput_box)
@@ -122,13 +123,16 @@ class BB():
                small non-zero value for draw.
 
         """
-        
-        
+
+
         # TODO: situation for empty box
+        #if currentInput_box.is_empty():
+
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
             currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
-
+            #print(pi.IntervalVector(currentValue)[0])
+            #print(self.function.eval(pi.IntervalVector(currentValue))[0])
             return 1- np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
         else:
             return 0

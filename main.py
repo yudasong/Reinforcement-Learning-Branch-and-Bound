@@ -1,5 +1,5 @@
 from Coach import Coach
-from naive.BB import BB 
+from naive.BB import BB
 from naive.pytorch.NNet import NNetWrapper as nn
 from utils import *
 from pyibex import *
@@ -24,9 +24,9 @@ args = dotdict({
 
 if __name__=="__main__":
     f = Function("x", "y", "x*exp(sin(x-y))")
-    #Define the input domain of the function
+    #Define the input domain of the function -- both[0.5,5] for x and y
     input_box = IntervalVector(2, [0.5,5])
-    #Define the output range (i.e. desired value of the function)
+    #Define the output range (i.e. desired value of the function) -- f range [1,1]
     output_range = Interval(1,1)
 
     g = BB(f, input_box, output_range)
