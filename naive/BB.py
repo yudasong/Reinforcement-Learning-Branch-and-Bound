@@ -131,7 +131,7 @@ class BB():
 
             return 1- np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
         else:
-            return False
+            return 0
 
 
 

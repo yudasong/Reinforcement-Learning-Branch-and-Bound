@@ -47,14 +47,14 @@ class Coach():
             episodeStep += 1
             temp = int(episodeStep < self.args.tempThreshold)
             pi, reward = self.mcts.getActionProb(currentInput_box, temp=temp)
-            trainExamples.append([board, pi, reward])
+            trainExamples.append([board, pi])
             action = np.random.choice(len(pi), p=pi)
             currentInput_box = self.game.getNextState(currentInput_box, action)
             board = self.game.getBoardFromInput_box(currentInput_box)
             r = self.game.getGameEnded(currentInput_box, THRESHOLD)
 
             if r!=0:
-                return trainExamples
+                return [(x[0],x[1],r) for x in trainExamples]
 
     def learn(self):
         """
