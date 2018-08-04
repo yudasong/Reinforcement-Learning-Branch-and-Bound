@@ -52,13 +52,18 @@ class Coach():
             pi, reward = self.mcts.getActionProb(currentInput_box, temp=temp)
 
             trainExamples.append([board, pi])
+
+            # choose the action = argmax from the policy of the nnet
+            #action = np.argmax(self.nnet(currentInput_box))
+
+
             action = np.random.choice(len(pi), p=pi)
             currentInput_box = self.game.getNextState(currentInput_box, action)
             board = self.game.getBoardFromInput_box(currentInput_box)
             r = self.game.getGameEnded(currentInput_box, THRESHOLD)
 
             if r!=0:
-                return [(x[0],x[1],r) for x in trainExamples]
+                return [(x[0],x[1],r) for x in trainExamples], episodeStep
 
     def learn(self):
         """
@@ -82,11 +87,16 @@ class Coach():
 
                 reward_list = []
                 count_list = []
+                step_list = []
 
                 for eps in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
-                    iterationTrainExamples += self.executeEpisode()
 
+                    example, step_count = self.executeEpisode()
+                    iterationTrainExamples += example
+
+
+                    step_list.append(step_count)
                     reward_list.append(iterationTrainExamples[-1][2])
                     count_list.append(eps)
 
@@ -98,11 +108,15 @@ class Coach():
                     bar.next()
                 bar.finish()
 
-                plt.scatter(count_list, reward_list, label = 'training')
+
 
                 if self.show:
-                    plt.show()
-
+                    plt.scatter(count_list, reward_list, label = 'rewards_training')
+                    plt.savefig("fig1/rewards_"+str(i)+".png")
+                    plt.close()
+                    plt.scatter(count_list, step_list, label = 'steps_training')
+                    plt.savefig("fig1/steps_"+str(i)+".png")
+                    plt.close()
 
 
                 # save the iteration examples to the history
