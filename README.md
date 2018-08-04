@@ -1,3 +1,10 @@
+8/3/2018
+
+1. Try eliminating value head.
+2. Try pure MCTS. 
+3. Try difficult functions.
+
+
 7/24/2018
 1. multi dimension issue within sampling data representation
 2. Need unified naming among BB files
