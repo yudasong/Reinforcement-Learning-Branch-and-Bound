@@ -112,10 +112,10 @@ class Coach():
 
                 if self.show:
                     plt.scatter(count_list, reward_list, label = 'rewards_training')
-                    plt.savefig("fig1/rewards_"+str(i)+".png")
+                    plt.savefig("fig/rewards_"+str(i)+".png")
                     plt.close()
                     plt.scatter(count_list, step_list, label = 'steps_training')
-                    plt.savefig("fig1/steps_"+str(i)+".png")
+                    plt.savefig("fig/steps_"+str(i)+".png")
                     plt.close()
 
 
