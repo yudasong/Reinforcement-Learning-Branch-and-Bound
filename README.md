@@ -1,3 +1,8 @@
+8/9
+
+1. Can't use tilted value cuz the weights for policy and value are shared.
+2. When the interval is small, branching intervals will lead to the same action again, until masked. (Because the input for NN is very similar).
+
 8/3/2018
 
 1. Try eliminating value head.
