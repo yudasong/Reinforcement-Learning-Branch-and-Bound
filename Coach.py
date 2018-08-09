@@ -63,7 +63,7 @@ class Coach():
             r = self.game.getGameEnded(currentInput_box, THRESHOLD)
 
             if r!=0:
-                return [(x[0],x[1],r) for x in trainExamples], episodeStep
+                return [(x[0],x[1]) for x in trainExamples], episodeStep, r
 
     def learn(self):
         """
@@ -92,12 +92,12 @@ class Coach():
                 for eps in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
-                    example, step_count = self.executeEpisode()
+                    example, step_count, r = self.executeEpisode()
                     iterationTrainExamples += example
 
 
                     step_list.append(step_count)
-                    reward_list.append(iterationTrainExamples[-1][2])
+                    reward_list.append(r)
                     count_list.append(eps)
 
                     # bookkeeping + plot progress
@@ -112,10 +112,10 @@ class Coach():
 
                 if self.show:
                     plt.scatter(count_list, reward_list, label = 'rewards_training')
-                    plt.savefig("fig1/rewards_"+str(i)+".png")
+                    plt.savefig("rofig/rewards_"+str(i)+".png")
                     plt.close()
                     plt.scatter(count_list, step_list, label = 'steps_training')
-                    plt.savefig("fig1/steps_"+str(i)+".png")
+                    plt.savefig("rofig/steps_"+str(i)+".png")
                     plt.close()
 
 

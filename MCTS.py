@@ -1,7 +1,9 @@
 import math
 import numpy as np
+from copy import deepcopy
+
 EPS = 1e-8
-THRESHOLD = 0.00001
+THRESHOLD = 0.001
 class MCTS():
     """
     This class handles the MCTS tree.
@@ -77,8 +79,26 @@ class MCTS():
 
         if s not in self.Ps:
             # leaf node
-            self.Ps[s], v = self.nnet.predict(board)
+            self.Ps[s] = self.nnet.predict(board)
+
             valids = self.game.getValidMoves(currentInput_box, THRESHOLD)
+
+            # use rollout to get the value
+            rollout_board = currentInput_box
+
+            v = self.game.getGameEnded(rollout_board, THRESHOLD)
+
+            while v == 0:
+
+                mask = self.game.getValidMoves(rollout_board, THRESHOLD)
+                action = np.random.random_integers(0,self.game.getActionSize()-1)
+                while mask[action] == 0:
+                    action = np.random.random_integers(0,self.game.getActionSize()-1)
+                rollout_board = self.game.getNextState(rollout_board, action)
+
+
+                v = self.game.getGameEnded(rollout_board, THRESHOLD)
+
             self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -86,7 +106,7 @@ class MCTS():
             else:
                 # if all valid moves were masked make all valid moves equally probable
 
-                # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
+                # All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 print("All valid moves were masked, do workaround.")
                 self.Ps[s] = self.Ps[s] + valids

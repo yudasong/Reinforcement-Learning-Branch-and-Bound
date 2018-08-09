@@ -51,7 +51,6 @@ class NNetWrapper(NeuralNet):
             data_time = AverageMeter()
             batch_time = AverageMeter()
             pi_losses = AverageMeter()
-            v_losses = AverageMeter()
             end = time.time()
 
             bar = Bar('Training Net', max=int(len(examples)/args.batch_size))
@@ -59,15 +58,14 @@ class NNetWrapper(NeuralNet):
 
             while batch_idx < int(len(examples)/args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
-                boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
+                boards, pis = list(zip(*[examples[i] for i in sample_ids]))
                 boards = torch.FloatTensor(np.array(boards).astype(np.float64))
                 target_pis = torch.FloatTensor(np.array(pis))
-                target_vs = torch.FloatTensor(np.array(vs).astype(np.float64))
 
                 # predict
                 if args.cuda:
-                    boards, target_pis, target_vs = boards.contiguous().cuda(), target_pis.contiguous().cuda(), target_vs.contiguous().cuda()
-                boards, target_pis, target_vs = Variable(boards), Variable(target_pis), Variable(target_vs)
+                    boards, target_pis= boards.contiguous().cuda(), target_pis.contiguous().cuda()
+                boards, target_pis = Variable(boards), Variable(target_pis)
 
                 # measure data loading time
                 data_time.update(time.time() - end)
@@ -76,17 +74,15 @@ class NNetWrapper(NeuralNet):
 
                 #print(boards.size())
 
-                out_pi, out_v = self.nnet(boards)
+                out_pi = self.nnet(boards)
 
 
 
                 l_pi = self.loss_pi(target_pis, out_pi)
-                l_v = self.loss_v(target_vs, out_v)
-                total_loss = l_pi + l_v
+                total_loss = l_pi
 
                 # record loss
                 pi_losses.update(l_pi.data[0], boards.size(0))
-                v_losses.update(l_v.data[0], boards.size(0))
 
                 # compute gradient and do SGD step
                 optimizer.zero_grad()
@@ -99,7 +95,7 @@ class NNetWrapper(NeuralNet):
                 batch_idx += 1
 
                 # plot progress
-                bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss_pi: {lpi:.4f} | Loss_v: {lv:.3f}'.format(
+                bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss_pi: {lpi:.4f} '.format(
                             batch=batch_idx,
                             size=int(len(examples)/args.batch_size),
                             data=data_time.avg,
@@ -107,7 +103,7 @@ class NNetWrapper(NeuralNet):
                             total=bar.elapsed_td,
                             eta=bar.eta_td,
                             lpi=pi_losses.avg,
-                            lv=v_losses.avg,
+
                             )
                 bar.next()
             bar.finish()
@@ -127,11 +123,11 @@ class NNetWrapper(NeuralNet):
         board = board.view(1, self.board_x, self.board_y)
 
         self.nnet.eval()
-        pi, v = self.nnet(board)
+        pi = self.nnet(board)
 
         #print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
-        return torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
-
+        return torch.exp(pi).data.cpu().numpy()[0]
+        
     def loss_pi(self, targets, outputs):
         return -torch.sum(targets*outputs)/targets.size()[0]
 

@@ -125,9 +125,8 @@ class BB():
         """
 
 
-        # TODO: situation for empty box
         if currentInput_box.is_empty():
-            return -5
+            return -2
 
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
