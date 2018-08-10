@@ -1,3 +1,8 @@
+8/10
+
+1. converges after finding a fair enough solution.
+
+
 8/9
 
 1. Can't use tilted value cuz the weights for policy and value are shared.
