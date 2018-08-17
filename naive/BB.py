@@ -127,14 +127,14 @@ class BB():
 
         # TODO: situation for empty box
         if currentInput_box.is_empty():
-            return -5
+            return -1
 
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
             currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
             #print(pi.IntervalVector(currentValue)[0])
             #print(self.function.eval(pi.IntervalVector(currentValue))[0])
-            return 1 - np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
+            return 1 - np.abs(self.function.eval(pi.IntervalVector(currentValue))[0]) / 5
         else:
             return 0
 

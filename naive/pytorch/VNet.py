@@ -10,7 +10,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 
-class NaiveNNet(nn.Module):
+class VNet(nn.Module):
     def __init__(self, game, args):
         # game params
         self.board_x, self.board_y = game.getBoardSize()    # self.board_x is the number of variables
@@ -18,7 +18,7 @@ class NaiveNNet(nn.Module):
         self.action_size = game.getActionSize()
         self.args = args
 
-        super(NaiveNNet, self).__init__()
+        super(VNet, self).__init__()
 
 
         self.fc1 = nn.Linear(self.board_y, 32)
@@ -28,7 +28,7 @@ class NaiveNNet(nn.Module):
 
         self.fc3 = nn.Linear(64, 16)
 
-        self.fc4 = nn.Linear(16, 2)
+        self.fc4 = nn.Linear(16, 1)
 
     def forward(self, s):
 
@@ -44,9 +44,10 @@ class NaiveNNet(nn.Module):
 
         s = self.fc3(s)
 
-        pi = self.fc4(s)
+        v = self.fc4(s)
 
-        pi = pi.view(-1, self.action_size)
+        v = v.view(-1, self.board_x)
 
+        v = v.mean(1)
 
-        return F.log_softmax(pi, dim=1)
+        return F.tanh(v)

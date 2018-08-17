@@ -20,6 +20,7 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 
 from .NaiveNNet import NaiveNNet as nnnet
+from .VNet import VNet as vnet
 
 args = dotdict({
     'lr': 0.001,
@@ -33,6 +34,7 @@ args = dotdict({
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.nnet = nnnet(game, args)
+        self.vnet = vnet(game, args)
         self.board_x, self.board_y = game.getBoardSize()
         self.action_size = game.getActionSize()
 
@@ -76,13 +78,13 @@ class NNetWrapper(NeuralNet):
 
                 #print(boards.size())
 
-                out_pi, out_v = self.nnet(boards)
+                out_pi = self.nnet(boards)
+                out_v = self.vnet(boards)
 
 
 
                 l_pi = self.loss_pi(target_pis, out_pi)
                 l_v = self.loss_v(target_vs, out_v)
-                total_loss = l_pi + l_v
 
                 # record loss
                 pi_losses.update(l_pi.data[0], boards.size(0))
@@ -90,7 +92,11 @@ class NNetWrapper(NeuralNet):
 
                 # compute gradient and do SGD step
                 optimizer.zero_grad()
-                total_loss.backward()
+                l_pi.backward()
+                optimizer.step()
+
+                optimizer.zero_grad()
+                l_v.backward()
                 optimizer.step()
 
                 # measure elapsed time
@@ -127,7 +133,10 @@ class NNetWrapper(NeuralNet):
         board = board.view(1, self.board_x, self.board_y)
 
         self.nnet.eval()
-        pi, v = self.nnet(board)
+        pi = self.nnet(board)
+
+        self.vnet.eval()
+        v = self.vnet(board)
 
         #print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         return torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
