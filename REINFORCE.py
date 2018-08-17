@@ -6,14 +6,13 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
+from torch.distributions import Categorical
+
 import matplotlib.pyplot as plt
 
 THRESHOLD = 0.001
-class Coach():
-    """
-    This class executes the self-play + learning. It uses the functions defined
-    in Game and NeuralNet. args are specified in main.py.
-    """
+class REINFORCE():
+
     def __init__(self, game, nnet, args):
         self.game = game
         self.nnet = nnet
@@ -26,36 +25,16 @@ class Coach():
         self.show = False
 
     def executeEpisode(self):
-        """
-        This function executes one episode of self-play, starting with player 1.
-        As the game is played, each turn is added as a training example to
-        trainExamples. The game is played till the game ends. After the game
-        ends, the outcome of the game is used to assign values to each example
-        in trainExamples.
 
-        It uses a temp=1 if episodeStep < tempThreshold, and thereafter
-        uses temp=0.
-
-        Returns:
-            trainExamples: a list of examples of the form (canonicalBoard,pi,v)
-                           pi is the MCTS informed policy vector, v is +1 if
-                           the player eventually won the game, else -1.
-        """
         trainExamples = []
         currentInput_box = self.game.input_box
         board = self.game.getBoardFromInput_box(currentInput_box)
+
         episodeStep = 0
 
         while True:
             episodeStep += 1
-            temp = int(episodeStep < self.args.tempThreshold)
-            pi, reward = self.mcts.getActionProb(currentInput_box, temp=temp)
-
-
-            # choose the action = argmax from the policy of the nnet
-            #action = np.argmax(self.nnet(currentInput_box))
-
-
+            pi = self.nnet.predict(board)
             action = np.random.choice(len(pi), p=pi)
 
             trainExamples.append([board, action])
@@ -81,7 +60,6 @@ class Coach():
             print('------ITER ' + str(i) + '------')
             # examples of the iteration
             if not self.skipFirstSelfPlay or i>1:
-                iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
 
                 eps_time = AverageMeter()
                 bar = Bar('Self Play', max=self.args.numEps)
@@ -92,14 +70,13 @@ class Coach():
                 step_list = []
 
                 for eps in range(self.args.numEps):
-                    self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
                     example, step_count = self.executeEpisode()
-                    iterationTrainExamples += example
 
+                    self.nnet.train(example)
 
                     step_list.append(step_count)
-                    reward_list.append(iterationTrainExamples[-1][2])
+                    reward_list.append(example[-1][-1])
                     count_list.append(eps)
 
                     # bookkeeping + plot progress
@@ -110,57 +87,12 @@ class Coach():
                     bar.next()
                 bar.finish()
 
-
-
-                if self.show:
-                    plt.scatter(count_list, reward_list, label = 'rewards_training')
-                    plt.savefig("fig/rewards_"+str(i)+".png")
-                    plt.close()
-                    plt.scatter(count_list, step_list, label = 'steps_training')
-                    plt.savefig("fig/steps_"+str(i)+".png")
-                    plt.close()
-
-
-                # save the iteration examples to the history
-                self.trainExamplesHistory.append(iterationTrainExamples)
-
-            if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
-                print("len(trainExamplesHistory) =", len(self.trainExamplesHistory), " => remove the oldest trainExamples")
-                self.trainExamplesHistory.pop(0)
-            # backup history to a file
-            # NB! the examples were collected using the model from the previous iteration, so (i-1)
-            self.saveTrainExamples(i-1)
-
-            # shuffle examlpes before training
-            trainExamples = []
-            for e in self.trainExamplesHistory:
-                trainExamples.extend(e)
-            shuffle(trainExamples)
-
-            # training new network, keeping a copy of the old one
-            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            pmcts = MCTS(self.game, self.pnet, self.args)
-
-            self.nnet.train(trainExamples)
-            self.show = True
-            nmcts = MCTS(self.game, self.nnet, self.args)
-
-            """
-
-            print('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
-                          lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
-
-            print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
-            if pwins+nwins > 0 and float(nwins)/(pwins+nwins) < self.args.updateThreshold:
-                print('REJECTING NEW MODEL')
-                self.nnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            else:
-                print('ACCEPTING NEW MODEL')"""
-            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
+                plt.scatter(count_list, reward_list, label = 'rewards_training')
+                plt.savefig("fig/rewards_"+str(i)+".png")
+                plt.close()
+                plt.scatter(count_list, step_list, label = 'steps_training')
+                plt.savefig("fig/steps_"+str(i)+".png")
+                plt.close()
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
