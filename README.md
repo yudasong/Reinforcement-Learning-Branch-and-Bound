@@ -1,3 +1,7 @@
+8/17
+1. try randomly secting the domain. 
+
+
 8/10
 
 1. converges after finding a fair enough solution.
