@@ -1,7 +1,7 @@
 8/17
 1. try randomly secting the domain. 
 2. Using the same network, can we generalize f(x) = 0 to f(x) = n?
-
+3. Sample from the neiborhood of every point.
 
 8/10
 
