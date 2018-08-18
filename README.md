@@ -2,6 +2,7 @@
 1. try randomly secting the domain. 
 2. Using the same network, can we generalize f(x) = 0 to f(x) = n?
 3. Sample from the neiborhood of every point.
+4. Compare with branch and prune, even the network doesn't give a fair reward.
 
 8/10
 
