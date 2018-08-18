@@ -3,6 +3,8 @@ from naive.BB import BB
 from naive.pytorch.NNet import NNetWrapper as nn
 from utils import *
 from pyibex import *
+import numpy as np
+from scipy import optimize
 #from BB import BB
 
 args = dotdict({
@@ -21,15 +23,18 @@ args = dotdict({
     'numItersForTrainExamplesHistory': 20,
 
 })
+def func(x):
+    return np.log(0.5*x[0]**2 + x[1]**2)
 
 if __name__=="__main__":
-    f = Function("x", "y", "x^2-y^2")
+
+    f = Function("x", "y", "ln(0.5* x^2 + y^2)")
     #Define the input domain of the function -- both[0.5,5] for x and y
-    input_box = IntervalVector(2, [-5,5])
+    input_box = IntervalVector([[-3,2], [-2,3]])
     #Define the output range (i.e. desired value of the function) -- f range [1,1]
     output_range = Interval(-3,3)
 
-    g = BB(f, input_box, output_range)
+    g = BB(f, input_box, output_range,func)
     nnet = nn(g)
 
     if args.load_model:

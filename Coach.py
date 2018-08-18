@@ -112,10 +112,10 @@ class Coach():
 
                 if self.show:
                     plt.scatter(count_list, reward_list, label = 'rewards_training')
-                    plt.savefig("fig/rewards_"+str(i)+".png")
+                    plt.savefig("fig4/rewards_"+str(i)+".png")
                     plt.close()
                     plt.scatter(count_list, step_list, label = 'steps_training')
-                    plt.savefig("fig/steps_"+str(i)+".png")
+                    plt.savefig("fig4/steps_"+str(i)+".png")
                     plt.close()
 
 
@@ -142,7 +142,7 @@ class Coach():
 
             self.nnet.train(trainExamples)
             self.show = True
-            nmcts = MCTS(self.game, self.nnet, self.args)
+            #nmcts = MCTS(self.game, self.nnet, self.args)
 
             """
 

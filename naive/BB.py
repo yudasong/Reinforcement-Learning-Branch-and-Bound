@@ -1,6 +1,7 @@
 import numpy as np
 import pyibex as pi
-
+from scipy import optimize
+import copy
 
 class BB():
     """
@@ -12,14 +13,15 @@ class BB():
 
     See othello/OthelloGame.py for an example implementation.
     """
-    def __init__(self, function, input_box, output_range):
+    def __init__(self, function, input_box, output_range,func):
         self.function = function
         self.input_box = input_box
         self.output_range = output_range
         self.contractor = pi.CtcFwdBwd(self.function, self.output_range)
-
+        self.func = func
         # size of representation for each variable
         self.embedding_size = 3
+        self.addGradient = True
 
     def getRoot(self):
         """
@@ -27,19 +29,25 @@ class BB():
             : a representation of the board (ideally this is the form
                         that will be the input to your neural network)
         """
-
         return getBoardFromInput_box(self.input_box)
 
+    def addGradient(self,currentInput_box):
+        #get gradient:
+        data_point = []
 
+        eps = np.sqrt(np.finfo(float).eps)
+        derivative = []
+        for x in data_point:
+            derivative.append(optimize.approx_fprime(x, func, [eps, np.sqrt(200) * eps]))
 
     def getBoardFromInput_box(self, currentInput_box):
 
 
         shape = self.getBoardSize()
 
-        embedding = np.zeros(shape)
+        embedding = np.zeros((2,3))
 
-        for i in range(shape[0]):
+        for i in range(2):
             lower = currentInput_box[i][0]
             upper = currentInput_box[i][1]
             middle = float((lower + upper) / 2)
@@ -48,6 +56,14 @@ class BB():
             embedding[i,1] = middle
             embedding[i,2] = upper
 
+        #find derivative
+        if self.addGradient:
+            data_point = embedding.transpose();
+            eps = np.sqrt(np.finfo(float).eps)
+            derivative = []
+            for x in data_point:
+                derivative.append(optimize.approx_fprime(x, self.func, [eps, np.sqrt(200) * eps]))
+            return np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
         return embedding
 
     def getBoardSize(self):
@@ -55,6 +71,8 @@ class BB():
         Returns:
             (x,y): a tuple of board dimensions
         """
+        if self.addGradient:
+            return len(self.input_box),self.embedding_size*2
         return  len(self.input_box),self.embedding_size
 
     def getActionSize(self):
