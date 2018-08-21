@@ -1,3 +1,12 @@
+8/17
+1. try randomly secting the domain. 
+2. Using the same network, can we generalize f(x) = 0 to f(x) = n?
+3. Sample from the neiborhood of every point.
+4. Compare with branch and prune, even the network doesn't give a fair reward.\
+    a. train f(x) = 0\
+    b. compare B&P f(x) = 0 and B&P+NN f(x) = 0\
+    c. compare B&P f(x) = n and B&P+NN f(x) = n
+
 8/10
 
 1. converges after finding a fair enough solution.
