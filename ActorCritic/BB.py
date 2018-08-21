@@ -77,7 +77,6 @@ class BB():
         direction = action % 2
 
         # split the interval of the selected variable ([(),()],[(),()])
-        #print(currentInput_box)
         new_boxes = currentInput_box.bisect(var_index, 0.5)
 
         # choose go to half of the interval
@@ -85,7 +84,6 @@ class BB():
 
         self.contractor.contract(currentInput_box)
 
-        #TODO: return the STATE
 
         return currentInput_box
 
@@ -136,12 +134,13 @@ class BB():
             #print(pi.IntervalVector(currentValue)[0])
             #print(self.function.eval(pi.IntervalVector(currentValue))[0])
             r = 1 - np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
-            if r < 0:
-                r /= 10
 
+            if r < 0:
+                r /= 6
             return r
+
         else:
-            return 0
+            return -3
 
 
 

@@ -28,7 +28,8 @@ f = Function("x1", "x2", "42.419930460509669*x1^2-25.467284450100433*x1*x2+29.03
 input_box = IntervalVector(2, [-10,10])
 print(len(input_box))
 #Define the output range (i.e. desired value of the function)
-output_range = Interval(0,0)
+output_range = Interval(0,10)
+print(output_range[1])
 
 #if solvable then a solution is printed; otherwise it outputs None
 print("Solution Box:", solve(f, input_box, output_range))

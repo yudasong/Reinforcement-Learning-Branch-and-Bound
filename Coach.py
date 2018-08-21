@@ -110,13 +110,12 @@ class Coach():
 
 
 
-                if self.show:
-                    plt.scatter(count_list, reward_list, label = 'rewards_training')
-                    plt.savefig("fig/rewards_"+str(i)+".png")
-                    plt.close()
-                    plt.scatter(count_list, step_list, label = 'steps_training')
-                    plt.savefig("fig/steps_"+str(i)+".png")
-                    plt.close()
+                plt.scatter(count_list, reward_list, label = 'rewards_training')
+                plt.savefig("fig/rewards_"+str(i)+".png")
+                plt.close()
+                plt.scatter(count_list, step_list, label = 'steps_training')
+                plt.savefig("fig/steps_"+str(i)+".png")
+                plt.close()
 
 
                 # save the iteration examples to the history

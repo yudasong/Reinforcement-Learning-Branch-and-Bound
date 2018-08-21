@@ -1,7 +1,7 @@
 import math
 import numpy as np
 EPS = 1e-8
-THRESHOLD = 0.00001
+THRESHOLD = 0.001
 class MCTS():
     """
     This class handles the MCTS tree.
@@ -97,6 +97,9 @@ class MCTS():
             return v
 
         valids = self.Vs[s]
+
+        #print(valids)
+
         cur_best = -float('inf')
         best_act = -1
 
