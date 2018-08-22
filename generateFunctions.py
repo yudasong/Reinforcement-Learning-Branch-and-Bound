@@ -12,7 +12,7 @@ class generateFunctions():
 		self.rangeLow = rangeLow
 		self.rangeHigh = rangeHigh
 
-		self.function = 0 
+		self.functionString = "" 
 
 	def generate(self):
 		#allowed values for the highest degree and others can be zeros 
@@ -24,13 +24,21 @@ class generateFunctions():
 			#make sure the highest is not zero coefficient
 			if ppar[0] == 0: 
 				ppar[0] = random.choice(allowed_values)
-			for j in range(len(ppar)): 
-				self.function += ppar[j]*(self.x_vector[i]**(highestVar-j))
-		return self.function 
-
-p = generateFunctions([x1,x2],[3,3],-5,5)
-function = p.generate()
-print(function)
+			for j in range(len(ppar)):
+				add = "" 
+				if ppar[j] != 0:
+					add = str(ppar[j])
+					if (highestVar-j) != 0:
+						add = add +"*"+self.x_vector[i]
+						if(highestVar-j)!=1:
+							add = add +"^"+str(highestVar-j)
+					if ppar[j] > 0:
+						add = "+" + add 
+				self.functionString = self.functionString + add
+		return self.functionString
+#p = generateFunctions()
+#function = p.generate()
+#print(function)
 
 
 
