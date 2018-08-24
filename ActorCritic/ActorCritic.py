@@ -27,6 +27,11 @@ class ActorCritic():
 
         episodeStep = 0
 
+        examples = []
+
+        boards = []
+
+
         while True:
             episodeStep += 1
 
@@ -56,15 +61,13 @@ class ActorCritic():
                 delta = 0.8 * v_prime - v
 
                 example.append(delta)
-
-                self.nnet.train(example)
+                examples.append(example)
 
             else:
                 example.append(r)
+                examples.append(example)
 
-                self.nnet.train(example)
-
-                return r, episodeStep
+                return [(x[0],x[1],x[2]) for x in examples], episodeStep
 
     def learn(self):
         """
@@ -91,10 +94,12 @@ class ActorCritic():
 
                 for eps in range(self.args.numEps):
 
-                    reward, step_count = self.executeEpisode()
+                    examples, step_count = self.executeEpisode()
+
+                    self.nnet.train(examples)
 
                     step_list.append(step_count)
-                    reward_list.append(reward)
+                    reward_list.append(examples[-1][2])
                     count_list.append(eps)
 
                     # bookkeeping + plot progress

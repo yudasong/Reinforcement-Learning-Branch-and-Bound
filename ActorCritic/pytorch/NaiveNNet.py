@@ -12,7 +12,6 @@ from torch.autograd import Variable
 
 class NaiveNNet(nn.Module):
     def __init__(self, game, args):
-        # game params
         self.board_x, self.board_y = game.getBoardSize()    # self.board_x is the number of variables
                                                             # self.board_y is the size of the embedding
         self.action_size = game.getActionSize()
@@ -26,9 +25,11 @@ class NaiveNNet(nn.Module):
 
         self.fc2 = nn.Linear(32, 128)
 
-        self.fc3 = nn.Linear(128, 16)
+        self.fc3 = nn.Linear(128, 32)
 
-        self.fc4 = nn.Linear(16, 2)
+        self.fc4 = nn.Linear(32, 2)
+
+        self.fc5 = nn.Linear(32, 1)
 
     def forward(self, s):
 
@@ -48,5 +49,10 @@ class NaiveNNet(nn.Module):
 
         pi = pi.view(-1, self.action_size)
 
+        v = self.fc5(s)
 
-        return F.softmax(pi, dim=1)
+        v = v.view(-1, self.board_x)
+
+        v = v.mean(1)
+
+        return F.log_softmax(pi, dim=1), F.tanh(v)

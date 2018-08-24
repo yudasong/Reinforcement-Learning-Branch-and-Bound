@@ -37,7 +37,6 @@ args = dotdict({
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.nnet = nnnet(game, args)
-        self.vnet = vnet(game, args)
 
         self.board_x, self.board_y = game.getBoardSize()
         self.action_size = game.getActionSize()
@@ -45,39 +44,32 @@ class NNetWrapper(NeuralNet):
         if args.cuda:
             self.nnet.cuda()
 
-
-
-    def train(self, example):
+    def train(self, examples):
 
         optimizer = optim.Adam(self.nnet.parameters())
 
+        boards, actions, deltas = list(zip(*[examples[i] for i in range(len(examples))]))
 
-        board, action, delta = example
+        for i in range(len(boards)):
 
+            board = torch.FloatTensor(boards[i].astype(np.float64))
+            board = Variable(board)
 
-        board = torch.FloatTensor(board.astype(np.float64))
-        board = Variable(board)
+            delta = torch.FloatTensor(np.asarray(deltas[i]).astype(np.float64))
+            delta = Variable(delta)
 
+            out_pi, out_v = self.nnet(board)
+            l_pi = self.loss_pi(delta, actions[i], out_pi)
 
-        out_pi = self.nnet(board)
-        l_pi = self.loss_pi(delta, action, out_pi)
+            l_v = self.loss_v(delta, out_v)
 
-        out_v = self.vnet(board)
+            total_loss = l_pi + l_v
 
-        delta = torch.FloatTensor(np.asarray(delta).astype(np.float64))
-        delta = Variable(delta)
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            total_loss.backward()
+            optimizer.step()
 
-
-        l_v = self.loss_v(delta, out_v)
-
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        l_pi.backward()
-        optimizer.step()
-
-        optimizer.zero_grad()
-        l_v.backward()
-        optimizer.step()
 
     def predict(self, board):
         """
@@ -93,9 +85,8 @@ class NNetWrapper(NeuralNet):
         board = board.view(1, self.board_x, self.board_y)
 
         self.nnet.eval()
-        pi = self.nnet(board)
-        self.vnet.eval()
-        v = self.vnet(board)
+        pi,v = self.nnet(board)
+
 
         #print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         return pi.data.cpu().numpy()[0], v.data.cpu().numpy()[0]
