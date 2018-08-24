@@ -45,6 +45,6 @@ class GFwithMonomial():
 					add += "^" + str(degree_matrix[j][i])
 			self.functionString += add
 		return self.functionString
-p = GFwithMonomial(["x1","x2", "x3"],[3,4,5],-5,5, 5)
+p = GFwithMonomial(["x1","x2","x3"],[3,4,5],-5,5, 4)
 function = p.generate()
 print(function)
