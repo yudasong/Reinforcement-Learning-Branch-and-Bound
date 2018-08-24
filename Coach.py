@@ -59,6 +59,7 @@ class Coach():
 
             action = np.random.choice(len(pi), p=pi)
             currentInput_box = self.game.getNextState(currentInput_box, action)
+            currentInput_box = self.game.distortInputbox(currentInput_box)
             board = self.game.getBoardFromInput_box(currentInput_box)
             r = self.game.getGameEnded(currentInput_box, THRESHOLD)
 

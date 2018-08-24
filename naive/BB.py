@@ -1,7 +1,6 @@
 import numpy as np
 import pyibex as pi
 
-
 class BB():
     """
     This class specifies the base Game class. To define your own game, subclass
@@ -111,6 +110,17 @@ class BB():
                 mask[2*i+1] = 1
 
         return mask
+
+    def distortInputbox(self, currentInputbox):
+        newBox = []
+        for i in range(len(currentInputbox)):
+            cur = []
+            delta = currentInputbox[i].diam()
+            cur.append(currentInputbox[i][0] + (-1) ** (np.random.randint(0,2)) * delta * np.random.sample() / 10)
+            cur.append(currentInputbox[i][1] + (-1) ** (np.random.randint(0,2)) * delta * np.random.sample() / 10)
+            newBox.append(cur)
+
+        return pi.IntervalVector(newBox)
 
 
     def getGameEnded(self,currentInput_box, threshold):
