@@ -31,19 +31,8 @@ class BB():
         """
         return getBoardFromInput_box(self.input_box)
 
-    def addGradient(self,currentInput_box):
-        #get gradient:
-        data_point = []
-
-        eps = np.sqrt(np.finfo(float).eps)
-        derivative = []
-        for x in data_point:
-            derivative.append(optimize.approx_fprime(x, func, [eps, np.sqrt(200) * eps]))
 
     def getBoardFromInput_box(self, currentInput_box):
-
-
-        shape = self.getBoardSize()
 
         embedding = np.zeros((2,3))
 

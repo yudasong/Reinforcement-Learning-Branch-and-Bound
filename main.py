@@ -24,7 +24,8 @@ args = dotdict({
 
 })
 def func(x):
-    return np.log(0.5*x[0]**2 + x[1]**2)
+    #np.log(0.5*x[0]**2 + x[1]**2)
+    return x[0]**2 + 3* x[1] **2
 
 if __name__=="__main__":
 
