@@ -1,17 +1,92 @@
 import math
 import numpy as np
 import copy, random 
+import nonlinear as nl
 
-EPS = 1e-8
-THRESHOLD = 0.001
+# EPS = 1e-8
+# THRESHOLD = 0.001
 # this class intends to solve the nonlinear via pure MCTS search 
-class pureMCTS():
-    def __init__(self, function )
-    # to compute the value of the upper confidence bound 
-    def uct_searh(self):
-        #if there is equal cases, just choose randomly 
-        
+class State:
+    def __init__(self, matrix, prevState, prevAction):
+        self.matrix = matrix
+        self.prevState = prevState
+        self.prevAction = prevAction
 
+        self.nCount = 0 
+        self.qReward = 0 
+        self.children = []  
+
+class pureMCTS:
+    def __init__(self, nonlinear): 
+        self.over = False
+        self.rootMatrix = nonlinear.getRootMatrix()
+        #if the first time, there is no solution 
+        if not self.rootMatrix:
+            self.over  = True 
+        self.root = State(rootMatrix, None, None)
+        self.function = nonlinear.function
+ 
+    def uct_searh(self):
+        # computational buget
+        for i in range(0,100): 
+            self.over = False 
+            selected_state = self.tree_policy(self.root)
+            reward_state = self.default_policy(selected_state)
+            self.backup(selected_state)
+        action = self.best_child(self.root)         
+        #if there is equal cases, just choose randomly 
+
+    def tree_policy(self, state): 
+        matrix = state.matrix
+        vector = nl.convertToVector(matrix)
+        if nl.notFinished(vector):
+            result_state = self.expand(state)
+            if not result_state: 
+                result_state = self.best_child(state)
+            return result_state
+        else: 
+            return state 
+
+    def expand(self, state):
+        #states that have been established 
+        chlidren = state.children
+        list_preAction = [] 
+        for i in range(len(children)):
+            list_preAction.append(children[i].prevAction)
+
+        #add a heuristics to expand the minimum range first
+        best_action = None 
+        best_vector = None 
+        best_value = math.inf
+        current_vector = nl.convertToVector(state.matrix)
+        list_validVectors = nl.getValidMoves(current_vector)
+
+        for vector, action in list_validVectors:
+            #check if the action is in the children or not 
+            (action_num, action_direction) = action 
+            count = list_preAction.count(action)
+            if count == 0: 
+                lower = vector[action_num-1,0]
+                upper = vector[action_num-1,1]
+                value = upper - lower 
+                if value < best_value: 
+                    best_action = action 
+                    best_vector = vector
+        #fully  expanded 
+        if not best_action:
+            return None  
+        matrix = nl.convertToMatrix(best_vector) 
+        new_state = State(matrix, state, best_action)
+        return new_state
+
+
+
+
+
+    def best_child(self,state):
+
+    def default_policy(self,state):
+    def backup(self,state):
     def __init__(self, function, nnet, args):
         self.game = game
         self.nnet = nnet
