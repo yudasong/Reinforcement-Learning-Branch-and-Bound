@@ -61,9 +61,9 @@ class GFwithMonomial():
 			self.function += add
 		return self.function
 
-p = GFwithMonomial(["x1","x2","x3"],[3,4,5],-5,5,4)
-p.randomPara()
-function = p.generateString(p.coe,p.degree_matrix)
+#p = GFwithMonomial(["x1","x2","x3"],[3,4,5],-5,5,4)
+#p.randomPara()
+#function = p.generateString(p.coe,p.degree_matrix)
 #function2 = p.generateFunction(p.coe,p.degree_matrix)
-print(function)
+#print(function)
 #print(function2)
