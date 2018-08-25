@@ -72,32 +72,91 @@ class optimization():
 		print(resbrute3[0])
 		print(resbrute3[1])
 
-		print("====================Still Brute but different ranges")
+		print("====================Still Brute but different ranges======================")
 		rranges2 = (slice(-5,5,0.1), slice(-5,5,0.1), slice(-5,5,0.1))
-		resbrute4 = brute(function, rranges, full_output=True)
+		resbrute4 = brute(function, rranges2, full_output=True)
 		print(resbrute4[0])
 		print(resbrute4[1])
 
 		print("This is the #5")
-		resbrute5 = brute(function, rranges, full_output=True)
+		resbrute5 = brute(function, rranges2, full_output=True)
 		print(resbrute5[0])
 		print(resbrute5[1])
 
 		print("This is the third")
-		resbrute6 = brute(function, rranges, full_output=True)
+		resbrute6 = brute(function, rranges2, full_output=True)
 		print(resbrute6[0])
 		print(resbrute6[1])
 
+		print("====================A much smaller range===============================")
+		rranges3 = (slice(-1,1,0.1), slice(-1,1,0.1), slice(-1,1,0.1))
+		resbrute7 = brute(function, rranges3, full_output=True)
+		print(resbrute7[0])
+		print(resbrute7[1])
 
-		
+		print("This is the #8")
+		resbrute8 = brute(function, rranges3, full_output=True)
+		print(resbrute8[0])
+		print(resbrute8[1])
 
-
+		print("This is the #9")
+		resbrute9 = brute(function, rranges3, full_output=True)
+		print(resbrute9[0])
+		print(resbrute9[1])
 
 	def differential(self):
 		bounds = [(-1000000000, 1000000000), (-1000000000,1000000000), (-1000000000,1000000000)]
-		result = differential_evolution(self.func, bounds)
+		function = self.func
+		print("===================Differential #0==================")
+		result = differential_evolution(function, bounds)
 		print(result.x)
 		print(result.fun)
+		print("===================Differential #00==================")
+		result0 = differential_evolution(function, bounds)
+		print(result0.x)
+		print(result0.fun)
+		print("===================Differential #000==================")
+		result00 = differential_evolution(function, bounds)
+		print(result00.x)
+		print(result00.fun)
+
+		bounds2 = [(-1,1),(-1,1),(-1,1)]
+		result2 = differential_evolution(function, bounds2)
+		print("===================Differential #2==================")
+		print(result2.x)
+		print(result2.fun)
+
+		result20 = differential_evolution(function, bounds2)
+		print("===================Differential #20==================")
+		print(result20.x)
+		print(result20.fun)
+
+		result200 = differential_evolution(function, bounds2)
+		print("===================Differential #200==================")
+		print(result200.x)
+		print(result200.fun)
+
+		result2000 = differential_evolution(function, bounds2)
+		print("===================Differential #200==================")
+		print(result2000.x)
+		print(result2000.fun)
+
+
+		bounds3 = [(-5,5),(-5,5),(-5,5)]
+		result3 = differential_evolution(function, bounds3)
+		print("===================Differential #3==================")
+		print(result3.x)
+		print(result3.fun)
+		result30 = differential_evolution(function, bounds3)
+		print("===================Differential #30==================")
+		print(result30.x)
+		print(result30.fun)
+		result300 = differential_evolution(function, bounds3)
+		print("===================Differential #300==================")
+		print(result300.x)
+		print(result300.fun)
+
+
 
 
 
@@ -106,5 +165,6 @@ class optimization():
 opt = optimization()
 opt.basinhopping_opt()
 print("========================THIS IS BRUTE============================")
-opt.brute()
-#opt.differential()
+#opt.brute()
+print("========================THIS IS DIFFERENTIAL============================")
+opt.differential()
