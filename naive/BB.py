@@ -1,5 +1,7 @@
 import numpy as np
 import pyibex as pi
+from scipy import optimize
+import copy
 
 class BB():
     """
@@ -11,14 +13,15 @@ class BB():
 
     See othello/OthelloGame.py for an example implementation.
     """
-    def __init__(self, function, input_box, output_range):
+    def __init__(self, function, input_box, output_range, func):
         self.function = function
         self.input_box = input_box
         self.output_range = output_range
         self.contractor = pi.CtcFwdBwd(self.function, self.output_range)
 
         # size of representation for each variable
-        self.embedding_size = 3
+        self.embedding_size = 6
+        self.func = func
 
     def getRoot(self):
         """
@@ -33,12 +36,10 @@ class BB():
 
     def getBoardFromInput_box(self, currentInput_box):
 
+        x,y = self.getBoardSize()
+        embedding = np.zeros((x,int(y/2)))
 
-        shape = self.getBoardSize()
-
-        embedding = np.zeros(shape)
-
-        for i in range(shape[0]):
+        for i in range(x):
             lower = currentInput_box[i][0]
             upper = currentInput_box[i][1]
             middle = float((lower + upper) / 2)
@@ -47,7 +48,13 @@ class BB():
             embedding[i,1] = middle
             embedding[i,2] = upper
 
-        return embedding
+        data_point = embedding.transpose();
+        eps = np.sqrt(np.finfo(float).eps)
+        derivative = []
+        for x in data_point:
+            derivative.append(optimize.approx_fprime(x, self.func, [eps, np.sqrt(200) * eps]))
+        return np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
+
 
     def getBoardSize(self):
         """

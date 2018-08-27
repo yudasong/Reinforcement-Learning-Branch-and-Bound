@@ -19,11 +19,11 @@ class GFwithMonomial():
 		self.monomials = monomials
 
 		#random numbers generator
-		self.degree_matrix = None 
-		self.coe = None 
-	
-	def randomPara(self): 
-		#the range for coefficient but not included 0 
+		self.degree_matrix = None
+		self.coe = None
+
+	def randomPara(self):
+		#the range for coefficient but not included 0
 		allowed_values = list(range(self.rangeLow,self.rangeHigh))
 		allowed_values.remove(0)
 		self.degree_matrix = [[0 for x in range(self.monomials)] for y in range(len(self.x_vector))]
@@ -48,12 +48,12 @@ class GFwithMonomial():
 					add += "^" + str(degree_matrix[j][i])
 			self.functionString += add
 		return self.functionString
-	
-	#return a function 
-	def generateFunction(self,coe,degree_matrix): 
+
+	#return a function
+	def generateFunction(self,coe,degree_matrix):
 		#generate the stringRepresentation
 		for i in range(self.monomials):
-			add = coe[i]  
+			add = coe[i]
 			for j in range(len(self.x_vector)):
 				if(degree_matrix[j][i] == 0):
 					continue
@@ -61,8 +61,21 @@ class GFwithMonomial():
 			self.function += add
 		return self.function
 
-#p = GFwithMonomial(["x1","x2","x3"],[3,4,5],-5,5,4)
-#p.randomPara()
+	def generateFunc(self,x):
+		res = 0;
+		for i in range(len(self.degree_matrix[0])):
+			current = self.coe[i];
+			for j in range(len(self.degree_matrix)):
+				current *= x[j]**self.degree_matrix[j][i]
+			res += current
+		return res
+
+p = GFwithMonomial(["x1","x2","x3"],[3,4,5],-5,5,4)
+p.randomPara()
+print(p.coe)
+print(p.degree_matrix)
+print(p.generateString(p.coe, p.degree_matrix))
+print(p.generateFunc([1,0,1]))
 #function = p.generateString(p.coe,p.degree_matrix)
 #function2 = p.generateFunction(p.coe,p.degree_matrix)
 #print(function)
