@@ -89,7 +89,7 @@ class BB():
         # choose go to half of the interval
         currentInput_box = new_boxes[direction]
 
-        self.contractor.contract(currentInput_box)
+        #self.contractor.contract(currentInput_box)
 
         #TODO: return the STATE
 
@@ -144,17 +144,15 @@ class BB():
 
 
         # TODO: situation for empty box
-        if currentInput_box.is_empty():
-            return -1
+        #if currentInput_box.is_empty():
+        #    return 1000
 
 
         if 1 not in self.getValidMoves(currentInput_box, threshold):
             currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
             #print(pi.IntervalVector(currentValue)[0])
             #print(self.function.eval(pi.IntervalVector(currentValue))[0])
-            r = 1 - np.abs(self.function.eval(pi.IntervalVector(currentValue))[0])
-            if r < 0:
-                r /= 10
+            r = self.function.eval(pi.IntervalVector(currentValue))[0]
 
             return r
         else:

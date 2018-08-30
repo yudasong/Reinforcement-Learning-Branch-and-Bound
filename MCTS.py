@@ -86,7 +86,7 @@ class MCTS():
             else:
                 # if all valid moves were masked make all valid moves equally probable
 
-                # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
+                # All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 print("All valid moves were masked, do workaround.")
                 self.Ps[s] = self.Ps[s] + valids

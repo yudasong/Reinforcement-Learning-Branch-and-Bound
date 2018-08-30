@@ -156,3 +156,4 @@ class NNetWrapper(NeuralNet):
             raise("No model in path {}".format(filepath))
         checkpoint = torch.load(filepath)
         self.nnet.load_state_dict(checkpoint['state_dict'])
+        print("check point loaded.")

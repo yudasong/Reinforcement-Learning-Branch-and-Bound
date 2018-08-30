@@ -3,6 +3,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
+
 class GFwithMonomial():
 	#the initial function taking 4 inputs
 	def __init__(self, x_vector, high_degree_vector, rangeLow, rangeHigh, monomials):

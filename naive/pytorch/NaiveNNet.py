@@ -21,12 +21,12 @@ class NaiveNNet(nn.Module):
         super(NaiveNNet, self).__init__()
 
 
-        self.fc1 = nn.Linear(self.board_y, 32)
+        self.fc1 = nn.Linear(self.board_y, 64)
 
 
-        self.fc2 = nn.Linear(32, 128)
+        self.fc2 = nn.Linear(64, 256)
 
-        self.fc3 = nn.Linear(128, 32)
+        self.fc3 = nn.Linear(256, 32)
 
         self.fc4 = nn.Linear(32, 2)
 
@@ -41,8 +41,6 @@ class NaiveNNet(nn.Module):
         s = F.relu(self.fc1(s))
 
         s = F.relu(self.fc2(s))
-
-        #print(s)
 
         s = self.fc3(s)
 

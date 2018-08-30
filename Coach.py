@@ -14,7 +14,7 @@ class Coach():
     This class executes the self-play + learning. It uses the functions defined
     in Game and NeuralNet. args are specified in main.py.
     """
-    def __init__(self, game, nnet, args):
+    def __init__(self, game, nnet, args, round):
         self.game = game
         self.nnet = nnet
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
@@ -24,6 +24,8 @@ class Coach():
         self.skipFirstSelfPlay = False # can be overriden in loadTrainExamples()
 
         self.show = False
+
+        self.round = round
 
     def executeEpisode(self):
         """
@@ -59,7 +61,7 @@ class Coach():
 
             action = np.random.choice(len(pi), p=pi)
             currentInput_box = self.game.getNextState(currentInput_box, action)
-            currentInput_box = self.game.distortInputbox(currentInput_box)
+            #currentInput_box = self.game.distortInputbox(currentInput_box)
             board = self.game.getBoardFromInput_box(currentInput_box)
             r = self.game.getGameEnded(currentInput_box, THRESHOLD)
 
@@ -90,6 +92,7 @@ class Coach():
                 count_list = []
                 step_list = []
 
+
                 for eps in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
@@ -112,12 +115,13 @@ class Coach():
 
 
                 plt.scatter(count_list, reward_list, label = 'rewards_training')
-                plt.savefig("fig/rewards_"+str(i)+".png")
+                plt.savefig("fig/"+str(self.round)+"_rewards_"+str(i)+".png")
                 plt.close()
                 plt.scatter(count_list, step_list, label = 'steps_training')
-                plt.savefig("fig/steps_"+str(i)+".png")
+                plt.savefig("fig/"+str(self.round)+"_steps_"+str(i)+".png")
                 plt.close()
 
+                iterationTrainExamples = self.normalizeReward(iterationTrainExamples)
 
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
@@ -159,6 +163,30 @@ class Coach():
                 print('ACCEPTING NEW MODEL')"""
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
+
+    def normalizeReward(self, examples):
+        rewards = []
+        cur = 0
+        result = []
+        for x in examples:
+            if x[-1] != cur:
+                rewards.append(x[-1])
+                cur = x[-1]
+
+        min = np.min(np.asarray(rewards))
+        max = np.max(np.asarray(rewards))
+        for i in range(len(examples)):
+            if examples[i][-1] == 1000:
+                reward = -1
+                result.append((examples[i][0], examples[i][1], reward))
+            elif examples[i][-1] < 0:
+                reward= examples[i][-1] / min
+                result.append((examples[i][0], examples[i][1], reward))
+            else:
+                reward= -examples[i][-1] / max
+                result.append((examples[i][0], examples[i][1], reward))
+
+        return result
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
