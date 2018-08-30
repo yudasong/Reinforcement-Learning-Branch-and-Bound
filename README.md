@@ -1,3 +1,6 @@
+8/30
+1. Add new feature: estimation of a lower value.
+
 8/17
 1. try randomly secting the domain. 
 2. Using the same network, can we generalize f(x) = 0 to f(x) = n?
