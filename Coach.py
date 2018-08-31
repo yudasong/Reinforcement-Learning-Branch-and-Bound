@@ -6,8 +6,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
-import matplotlib.pyplot as plt
-
+1
 THRESHOLD = 0.001
 class Coach():
     """
@@ -130,8 +129,7 @@ class Coach():
                 print("len(trainExamplesHistory) =", len(self.trainExamplesHistory), " => remove the oldest trainExamples")
                 self.trainExamplesHistory.pop(0)
             # backup history to a file
-            # NB! the examples were collected using the model from the previous iteration, so (i-1)
-            self.saveTrainExamples(i-1)
+            #self.saveTrainExamples(i-1)
 
             # shuffle examlpes before training
             trainExamples = []
