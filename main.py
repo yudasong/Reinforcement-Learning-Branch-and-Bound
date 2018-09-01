@@ -55,7 +55,7 @@ if __name__=="__main__":
     c.learn()
 
     while True:
-        generator = GF(["x1","x2"],[3,3],-5,5,4)
+        generator = GF(["x1","x2"],[3,3],-5,5,10)
         generator.randomPara()
         function = generator.generateString(generator.coe, generator.degree_matrix)
         f = Function("x1","x2", function)

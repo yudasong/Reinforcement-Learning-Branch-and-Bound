@@ -6,7 +6,8 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
-1
+import matplotlib.pyplot as plt
+
 THRESHOLD = 0.001
 class Coach():
     """
