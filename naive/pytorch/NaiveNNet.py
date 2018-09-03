@@ -20,11 +20,11 @@ class NaiveNNet(nn.Module):
 
         super(NaiveNNet, self).__init__()
 
-        if torch.cuda.is_available(): 
-            
+        if torch.cuda.is_available():
 
-            
-            
+
+
+
             self.fc1 = nn.Linear(self.board_y, 64).cuda()
 
 
@@ -49,6 +49,14 @@ class NaiveNNet(nn.Module):
             self.fc4 = nn.Linear(32, 2)
 
             self.fc5 = nn.Linear(32, 1)
+
+
+        torch.nn.init.xavier_uniform(self.fc1.weight)
+        torch.nn.init.xavier_uniform(self.fc2.weight)
+        torch.nn.init.xavier_uniform(self.fc3.weight)
+        torch.nn.init.xavier_uniform(self.fc4.weight)
+        torch.nn.init.xavier_uniform(self.fc5.weight)
+
 
     def forward(self, s):
 

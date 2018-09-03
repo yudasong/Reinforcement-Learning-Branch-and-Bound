@@ -53,6 +53,10 @@ class Coach():
             temp = int(episodeStep < self.args.tempThreshold)
             pi, reward = self.mcts.getActionProb(currentInput_box, temp=temp)
 
+            #print(pi)
+
+
+
             trainExamples.append([board, pi])
 
             # choose the action = argmax from the policy of the nnet
@@ -165,7 +169,7 @@ class Coach():
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
 
-            if std < 100 and mean < 0:
+            if std < 20 and mean < 0:
                 print("stop traing because of identical rewards")
                 break
 

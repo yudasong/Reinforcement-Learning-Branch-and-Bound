@@ -48,7 +48,7 @@ def min_with_nn(f, input_box, esp, func):
     game = BB(f, input_box, Interval(-999,999), func)
     nnet = nn(game)
 
-    nnet.load_checkpoint('./ckps/', 'best.pth.tar')
+    nnet.load_checkpoint('./ckpsss/', 'best.pth.tar')
 
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)
@@ -60,7 +60,7 @@ def min_with_nn(f, input_box, esp, func):
     while r == 0:
         board = game.getBoardFromInput_box(current_box)
 
-        print(board)
+        #print(board)
 
         pi, v = nnet.predict(board)
         pi = game.getValidMoves(current_box, esp) * pi
@@ -144,7 +144,7 @@ def bnb_with_nn(f, input_box, eps, func):
     QSA = {}
     game = BB(f, input_box, Interval(-999,999), func)
     nnet = nn(game)
-    nnet.load_checkpoint('./ckps/', 'best.pth.tar')
+    nnet.load_checkpoint('./ckpsss/', 'best.pth.tar')
 
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)

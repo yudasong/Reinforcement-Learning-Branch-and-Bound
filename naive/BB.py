@@ -57,7 +57,7 @@ class BB():
         eps = np.sqrt(np.finfo(float).eps)
         derivative = []
         for x in data_point:
-            derivative.append(optimize.approx_fprime(x, self.func, eps))
+            derivative.append(np.sign(optimize.approx_fprime(x, self.func, eps)))
         return np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
 
 
