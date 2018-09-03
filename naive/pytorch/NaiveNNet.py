@@ -20,17 +20,35 @@ class NaiveNNet(nn.Module):
 
         super(NaiveNNet, self).__init__()
 
+        if torch.cuda.is_available(): 
+            
 
-        self.fc1 = nn.Linear(self.board_y, 64)
+            
+            
+            self.fc1 = nn.Linear(self.board_y, 64).cuda()
 
 
-        self.fc2 = nn.Linear(64, 256)
+            self.fc2 = nn.Linear(64, 256).cuda()
 
-        self.fc3 = nn.Linear(256, 32)
+            self.fc3 = nn.Linear(256, 32).cuda()
 
-        self.fc4 = nn.Linear(32, 2)
+            self.fc4 = nn.Linear(32, 2).cuda()
 
-        self.fc5 = nn.Linear(32, 1)
+            self.fc5 = nn.Linear(32, 1).cuda()
+
+        else:
+
+
+            self.fc1 = nn.Linear(self.board_y, 64)
+
+
+            self.fc2 = nn.Linear(64, 256)
+
+            self.fc3 = nn.Linear(256, 32)
+
+            self.fc4 = nn.Linear(32, 2)
+
+            self.fc5 = nn.Linear(32, 1)
 
     def forward(self, s):
 

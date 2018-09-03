@@ -53,14 +53,20 @@ def min_with_nn(f, input_box, esp, func):
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)
 
+
+
     r = game.getGameEnded(current_box, esp)
     step = 0
     while r == 0:
         board = game.getBoardFromInput_box(current_box)
+
+        print(board)
+
         pi, v = nnet.predict(board)
         pi = game.getValidMoves(current_box, esp) * pi
         print(pi)
         a = np.argmax(pi)
+        print(a)
         current_box = game.getNextState(current_box, a)
         r = game.getGameEnded(current_box, esp)
         step += 1
@@ -203,9 +209,9 @@ bb_result = []
 nn_result = []
 count = []
 
-for i in range(1,26):
+for i in range(1,101):
     #Original function
-    generator = GF(["x1","x2"],[3,3],-5,5,10)
+    generator = GF(["x1","x2"],[3,3],-5,5,20)
     generator.randomPara()
     function = generator.generateString(generator.coe, generator.degree_matrix)
     func = generator.generateFunc
@@ -216,22 +222,26 @@ for i in range(1,26):
     bb_list.append(step)
     bb_sum += step
     bb_result.append(min)
-    #print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
+    print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
     min, step = min_with_nn(f, input_box, 0.001, func)
-    nn_result.append(min)
-    #print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
+    #nn_result.append(min)
+    print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
     min, step = bnb_with_nn(f, input_box, 0.001, func)
     nn_list.append(step)
     nn_sum += step
-    #print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
+    print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
     count.append(i)
     plt.scatter(count, bb_list, label = 'bb')
     plt.scatter(count, nn_list, label = 'nn')
     plt.savefig("steps.png")
     plt.close()
-    plt.scatter(count, bb_result, label = 'bb')
-    plt.scatter(count, nn_result, label = 'nn')
-    plt.savefig("results.png")
-    plt.close()
+    #plt.scatter(count, bb_result, label = 'bb')
+    #plt.scatter(count, nn_result, label = 'nn')
+    #plt.savefig("results.png")
+    #plt.close()
 
-    print("average:","bb:",bb_sum/25, "nn:",nn_sum/25)
+    print("average:","bb:",bb_sum/i, "nn:",nn_sum/i)
+
+plt.scatter(count, bb_list, label = 'bb')
+plt.scatter(count, nn_list, label = 'nn')
+plt.plot()

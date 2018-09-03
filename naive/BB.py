@@ -23,6 +23,11 @@ class BB():
         self.embedding_size = 6
         self.func = func
 
+        self.lower = self.function.eval(self.input_box)[0]
+        self.upper = self.function.eval(self.input_box)[1]
+
+        #print(self.lower, self.upper)
+
     def getRoot(self):
         """
         Returns:
@@ -52,7 +57,7 @@ class BB():
         eps = np.sqrt(np.finfo(float).eps)
         derivative = []
         for x in data_point:
-            derivative.append(optimize.approx_fprime(x, self.func, [eps, np.sqrt(200) * eps]))
+            derivative.append(optimize.approx_fprime(x, self.func, eps))
         return np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
 
 
@@ -68,7 +73,7 @@ class BB():
         Returns:
             actionSize: number of all possible actions
         """
-        return 2**len(self.input_box)
+        return 2*len(self.input_box)
 
     def getNextState(self, currentInput_box, action):
         """
@@ -154,6 +159,38 @@ class BB():
             #print(self.function.eval(pi.IntervalVector(currentValue))[0])
             r = self.function.eval(pi.IntervalVector(currentValue))[0]
 
+            return r
+        else:
+            return 0
+
+    def getGameEndedTree(self,currentInput_box, threshold):
+        """
+        Input:
+            board: current board
+            player: current player (1 or -1)
+
+        Returns:
+            r: 0 if game has not ended. 1 if player won, -1 if player lost,
+               small non-zero value for draw.
+
+        """
+
+
+        # TODO: situation for empty box
+        #if currentInput_box.is_empty():
+        #    return 1000
+
+
+        if 1 not in self.getValidMoves(currentInput_box, threshold):
+            currentValue = [[currentInput_box[i].diam()/2 + currentInput_box[i][0],currentInput_box[i].diam()/2 + currentInput_box[i][0]] for i in range(len(currentInput_box))]
+            #print(pi.IntervalVector(currentValue)[0])
+            #print(self.function.eval(pi.IntervalVector(currentValue))[0])
+            r = self.function.eval(pi.IntervalVector(currentValue))[0]
+
+            if r > 0:
+                r = - r / self.upper
+            else:
+                r = r / self.lower
             return r
         else:
             return 0

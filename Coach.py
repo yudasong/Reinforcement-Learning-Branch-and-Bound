@@ -80,6 +80,8 @@ class Coach():
         for i in range(1, self.args.numIters+1):
             # bookkeeping
             print('------ITER ' + str(i) + '------')
+
+            std = 999
             # examples of the iteration
             if not self.skipFirstSelfPlay or i>1:
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
@@ -121,7 +123,7 @@ class Coach():
                 plt.savefig("fig/"+str(self.round)+"_steps_"+str(i)+".png")
                 plt.close()
 
-                iterationTrainExamples = self.normalizeReward(iterationTrainExamples)
+                iterationTrainExamples, std, mean = self.normalizeReward(iterationTrainExamples)
 
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
@@ -163,6 +165,12 @@ class Coach():
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
 
+            if std < 100 and mean < 0:
+                print("stop traing because of identical rewards")
+                break
+
+
+
     def normalizeReward(self, examples):
         rewards = []
         cur = 0
@@ -185,7 +193,7 @@ class Coach():
                 reward= -examples[i][-1] / max
                 result.append((examples[i][0], examples[i][1], reward))
 
-        return result
+        return result, np.std(np.asarray(rewards)), np.mean(np.asarray(rewards))
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'

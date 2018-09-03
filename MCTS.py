@@ -69,7 +69,7 @@ class MCTS():
         board = self.game.getBoardFromInput_box(currentInput_box)
 
         if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(currentInput_box, THRESHOLD)
+            self.Es[s] = self.game.getGameEndedTree(currentInput_box, THRESHOLD)
 
         if self.Es[s]!=0:
             # terminal node

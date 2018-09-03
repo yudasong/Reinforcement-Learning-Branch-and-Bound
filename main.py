@@ -8,8 +8,8 @@ from generateFunctions import generateFunctions
 from GFwithMonomial import GFwithMonomial as GF
 
 args = dotdict({
-    'numIters': 5,
-    'numEps': 100,
+    'numIters': 20,
+    'numEps': 20,
     'tempThreshold': 15,
     'updateThreshold': 0.6,
     'maxlenOfQueue': 200000,
@@ -17,9 +17,9 @@ args = dotdict({
     'arenaCompare': 40,
     'cpuct': 1,
 
-    'checkpoint': './ckps/',
-    'load_model': True,
-    'load_folder_file': ('./ckps','best.pth.tar'),
+    'checkpoint': './ckpsss/',
+    'load_model': False,
+    'load_folder_file': ('./ckpsss','best.pth.tar'),
     'numItersForTrainExamplesHistory': 1,
 
 })
@@ -30,15 +30,15 @@ if __name__=="__main__":
     #((sin(x^2-y^2))^2-0.5)/(1+0.001*(x^2+y^2))^2
     #-20 * exp(-0.2*sqrt(0.5*(x^2+y^2)))-exp(0.5*(cos(2*3.1415926535*x)+cos(2*3.1415926535*y)))+2.71828+20"
 
-    i = 20
+    i = 0
 
-    generator = GF(["x1","x2"],[3,3],-5,5,10)
+    generator = GF(["x1","x2","x3","x4"],[4,3,3,5],-10,10,20)
     generator.randomPara()
     function = generator.generateString(generator.coe, generator.degree_matrix)
-    f = Function("x1","x2", function)
+    f = Function("x1","x2","x3","x4", function)
     #f = Function("x", "y", "-20 * exp(-0.2*sqrt(0.5*(x^2+y^2)))-exp(0.5*(cos(2*3.1415926535*x)+cos(2*3.1415926535*y)))+2.71828+20")
     #Define the input domain of the function -- both[0.5,5] for x and y
-    input_box = IntervalVector([[-5,5],[-5,5]])
+    input_box = IntervalVector([[-10,10],[-10,10],[-10,10],[-10,10]])
     #Define the output range (i.e. desired value of the function) -- f range [1,1]
     output_range = Interval(-999,999)
 
@@ -55,13 +55,13 @@ if __name__=="__main__":
     c.learn()
 
     while True:
-        generator = GF(["x1","x2"],[3,3],-5,5,10)
+        generator = GF(["x1","x2","x3","x4"],[4,3,3,5],-10,10,20)
         generator.randomPara()
         function = generator.generateString(generator.coe, generator.degree_matrix)
-        f = Function("x1","x2", function)
+        f = Function("x1","x2","x3","x4", function)
         #f = Function("x", "y", "-20 * exp(-0.2*sqrt(0.5*(x^2+y^2)))-exp(0.5*(cos(2*3.1415926535*x)+cos(2*3.1415926535*y)))+2.71828+20")
         #Define the input domain of the function -- both[0.5,5] for x and y
-        input_box = IntervalVector([[-5,5],[-5,5]])
+        input_box = IntervalVector([[-10,10],[-10,10],[-10,10],[-10,10]])
         #Define the output range (i.e. desired value of the function) -- f range [1,1]
         output_range = Interval(-999,999)
 
