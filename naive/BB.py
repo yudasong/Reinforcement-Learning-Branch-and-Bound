@@ -20,7 +20,7 @@ class BB():
         self.contractor = pi.CtcFwdBwd(self.function, self.output_range)
 
         # size of representation for each variable
-        self.embedding_size = 6
+        self.embedding_size = 9
         self.func = func
 
         self.lower = self.function.eval(self.input_box)[0]
@@ -42,7 +42,7 @@ class BB():
     def getBoardFromInput_box(self, currentInput_box):
 
         x,y = self.getBoardSize()
-        embedding = np.zeros((x,int(y/2)))
+        embedding = np.zeros((x,3))
 
         for i in range(x):
             lower = currentInput_box[i][0]
@@ -57,8 +57,23 @@ class BB():
         eps = np.sqrt(np.finfo(float).eps)
         derivative = []
         for x in data_point:
-            derivative.append(np.sign(optimize.approx_fprime(x, self.func, eps)))
-        return np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
+            a_s = []
+            b_s = []
+            x = optimize.approx_fprime(x, self.func, eps)
+            for a in x:
+                b = 0
+                while np.abs(a) > 1:
+                    a /= 10
+                    b += 1
+                a_s.append(a)
+                if b == 0:
+                    b_s.append(b)
+                else:
+                    b_s.append(np.log(b))
+            derivative.append(a_s)
+            derivative.append(b_s)
+        result = np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
+        return result
 
 
     def getBoardSize(self):

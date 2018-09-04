@@ -5,6 +5,8 @@ from GFwithMonomial import GFwithMonomial as GF
 
 import numpy as np
 
+from interval import interval
+
 from naive.BB import BB
 from naive.pytorch.NNet import NNetWrapper as nn
 
@@ -48,7 +50,7 @@ def min_with_nn(f, input_box, esp, func):
     game = BB(f, input_box, Interval(-999,999), func)
     nnet = nn(game)
 
-    nnet.load_checkpoint('./ckpsss/', 'best.pth.tar')
+    nnet.load_checkpoint('./', 'best.pth.tar')
 
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)
@@ -64,9 +66,9 @@ def min_with_nn(f, input_box, esp, func):
 
         pi, v = nnet.predict(board)
         pi = game.getValidMoves(current_box, esp) * pi
-        print(pi)
+        #print(pi)
         a = np.argmax(pi)
-        print(a)
+        #print(a)
         current_box = game.getNextState(current_box, a)
         r = game.getGameEnded(current_box, esp)
         step += 1
@@ -76,30 +78,26 @@ def min_with_nn(f, input_box, esp, func):
 def bnb_with_nn_pq(f, input_box, eps, func):
 
     QSA = {}
-
-
     game = BB(f, input_box, Interval(-999,999), func)
     nnet = nn(game)
-
-    nnet.load_checkpoint('./ckps/', 'best.pth.tar')
+    nnet.load_checkpoint('./', 'best.pth.tar')
 
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)
-
     pi, v = nnet.predict(board)
-
-    box_stack =  [(v, current_box)]
-
+    box_stack =  [(v,interval(current_box))]
     QSA[game.stringRepresentation(current_box)] = (pi, v)
-
     g_min = eval_at_mid(f, current_box)
-
     step = 0
+
     while box_stack:
 
-        print(box_stack)
+        v,cur_interval = heappop(box_stack)
 
-        v, current_box = heappop(box_stack)
+        current_box = cur_interval.interval
+
+        if g_min < get_lb(f, current_box):
+            continue
 
         s = game.stringRepresentation(current_box)
 
@@ -107,36 +105,38 @@ def bnb_with_nn_pq(f, input_box, eps, func):
 
         pi = game.getValidMoves(current_box, eps) * pi
 
-        print(pi)
+        if np.sum(pi) > 0:
 
-        a = np.argmax(pi)
+            a = np.argmax(pi)
+            if pi[a] > 0:
+                pi[a] = 0
+                QSA[s] = (pi, v)
 
-        pi[a] = 0
+                if a % 2 == 0:
+                    alter_a = a + 1
+                else:
+                    alter_a = a - 1
 
-        QSA[s] = (pi, v)
+                alter_box = game.getNextState(current_box, alter_a)
 
-        if np.sum(pi) > 0 and get_lb(f, current_box) < g_min - eps:
+                current_box = game.getNextState(current_box, a)
 
-            heappush(box_stack, (v, current_box))
+                new_boxes = [alter_box, current_box]
 
-        current_box = game.getNextState(current_box, a)
+                for b in new_boxes:
+                    if eval_at_mid(f, b) < g_min - eps:
+                        g_min = eval_at_mid(f, b)
+                        #only push the box if its overestimation of lower bound is lower
+                    if get_lb(f, b) < g_min - eps:
 
-        if eval_at_mid(f, current_box) < g_min - eps:
-            g_min = eval_at_mid(f, current_box)
-        #only push the box if its overestimation of lower bound is lower
-        if get_lb(f, current_box) < g_min - eps:
-
-            board = game.getBoardFromInput_box(current_box)
-
-
-            pi, v = nnet.predict(board)
-
-            heappush(box_stack, (v, current_box))
-            QSA[game.stringRepresentation(current_box)] = (pi, v)
-
-        step += 1
-
-
+                        s = game.stringRepresentation(b)
+                        if s not in QSA:
+                            board = game.getBoardFromInput_box(b)
+                            pi, v = nnet.predict(board)
+                            QSA[s] = (pi, v)
+                        if b not in box_stack:
+                            heappush(box_stack,(v ,interval(b)))
+                            step += 1
     return g_min, step
 
 def bnb_with_nn(f, input_box, eps, func):
@@ -144,7 +144,7 @@ def bnb_with_nn(f, input_box, eps, func):
     QSA = {}
     game = BB(f, input_box, Interval(-999,999), func)
     nnet = nn(game)
-    nnet.load_checkpoint('./ckpsss/', 'best.pth.tar')
+    nnet.load_checkpoint('./', 'best.pth.tar')
 
     current_box = input_box
     board = game.getBoardFromInput_box(current_box)
@@ -203,13 +203,15 @@ def bnb_with_nn(f, input_box, eps, func):
 
 bb_list = []
 nn_list = []
+pq_list = []
 bb_sum = 0
 nn_sum = 0
+pq_sum = 0
 bb_result = []
 nn_result = []
 count = []
 
-for i in range(1,101):
+for i in range(1,21):
     #Original function
     generator = GF(["x1","x2"],[3,3],-5,5,20)
     generator.randomPara()
@@ -226,13 +228,18 @@ for i in range(1,101):
     min, step = min_with_nn(f, input_box, 0.001, func)
     #nn_result.append(min)
     print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
-    min, step = bnb_with_nn(f, input_box, 0.001, func)
-    nn_list.append(step)
-    nn_sum += step
+    #min, step = bnb_with_nn(f, input_box, 0.001, func)
+    #nn_list.append(step)
+    #nn_sum += step
+    #print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
+    min, step = bnb_with_nn_pq(f, input_box, 0.001, func)
+    pq_list.append(step)
+    pq_sum += step
     print("min of ", f, "in range", input_box, ":", min, "\nstep count:", step)
     count.append(i)
     plt.scatter(count, bb_list, label = 'bb')
-    plt.scatter(count, nn_list, label = 'nn')
+    #plt.scatter(count, nn_list, label = 'nn')
+    plt.scatter(count, pq_list, label = 'pq')
     plt.savefig("steps.png")
     plt.close()
     #plt.scatter(count, bb_result, label = 'bb')
@@ -240,7 +247,7 @@ for i in range(1,101):
     #plt.savefig("results.png")
     #plt.close()
 
-    print("average:","bb:",bb_sum/i, "nn:",nn_sum/i)
+    print("average:","bb:",bb_sum/i, "nn:",nn_sum/i, "pq:",pq_sum/i)
 
 plt.scatter(count, bb_list, label = 'bb')
 plt.scatter(count, nn_list, label = 'nn')

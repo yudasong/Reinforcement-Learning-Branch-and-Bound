@@ -123,9 +123,9 @@ class Coach():
                 plt.scatter(count_list, reward_list, label = 'rewards_training')
                 plt.savefig("fig/"+str(self.round)+"_rewards_"+str(i)+".png")
                 plt.close()
-                plt.scatter(count_list, step_list, label = 'steps_training')
-                plt.savefig("fig/"+str(self.round)+"_steps_"+str(i)+".png")
-                plt.close()
+                #plt.scatter(count_list, step_list, label = 'steps_training')
+                #plt.savefig("fig/"+str(self.round)+"_steps_"+str(i)+".png")
+                #plt.close()
 
                 iterationTrainExamples, std, mean = self.normalizeReward(iterationTrainExamples)
 
@@ -146,12 +146,12 @@ class Coach():
 
             # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            pmcts = MCTS(self.game, self.pnet, self.args)
+            #self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
+            #pmcts = MCTS(self.game, self.pnet, self.args)
 
             self.nnet.train(trainExamples)
             self.show = True
-            nmcts = MCTS(self.game, self.nnet, self.args)
+            #nmcts = MCTS(self.game, self.nnet, self.args)
 
             """
 
@@ -169,7 +169,7 @@ class Coach():
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
 
-            if std < 20 and mean < 0:
+            if std < 100 and mean < 0:
                 print("stop traing because of identical rewards")
                 break
 
