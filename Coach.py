@@ -169,7 +169,7 @@ class Coach():
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')
 
-            if std < 100 and mean < 0:
+            if std < 100 and mean < self.game.lower / 4:
                 print("stop traing because of identical rewards")
                 break
 

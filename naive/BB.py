@@ -23,6 +23,9 @@ class BB():
         self.embedding_size = 9
         self.func = func
 
+        self.diam = input_box[0].diam() / 2
+
+
         self.lower = self.function.eval(self.input_box)[0]
         self.upper = self.function.eval(self.input_box)[1]
 
@@ -73,6 +76,14 @@ class BB():
             derivative.append(a_s)
             derivative.append(b_s)
         result = np.concatenate((embedding, np.asarray(derivative).transpose()),axis = 1)
+
+        x,y = self.getBoardSize()
+        for i in range(x):
+
+            result[i,0] /= self.diam
+            result[i,1] /= self.diam
+            result[i,2] /= self.diam
+
         return result
 
 
